@@ -1,0 +1,2204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1400, maximum-scale=1.0, user-scalable=yes">
+    <title>🎬 CINEVERSE · Netflix Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #000;
+            color: white;
+            overflow-x: auto;
+            overflow-y: auto;
+            min-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Main content wrapper */
+        .main-wrapper {
+            flex: 1 0 auto;
+            width: 100%;
+        }
+
+        /* Theater Header */
+        .theater-header {
+            background: linear-gradient(90deg, #1a1a1a, #000);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            border-bottom: 2px solid #ff0000;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+
+        /* LIVE Indicator with viewer count */
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 0, 0, 0.2);
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #ff0000;
+        }
+
+        .live-indicator:hover {
+            background: rgba(255, 0, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        .live-dot {
+            width: 12px;
+            height: 12px;
+            background: #ff0000;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+            animation: livePulse 1.5s infinite;
+        }
+
+        .live-text {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .live-viewer-count {
+            color: #4ecdc4;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+            padding-left: 0.5rem;
+            border-left: 2px solid #ff0000;
+        }
+
+        @keyframes livePulse {
+            0% {
+                box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000;
+                opacity: 1;
+            }
+            50% {
+                box-shadow: 0 0 15px #ff0000, 0 0 30px #ff0000, 0 0 40px #ff0000;
+                opacity: 0.8;
+            }
+            100% {
+                box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000;
+                opacity: 1;
+            }
+        }
+
+        /* Channel Tabs - INCLUDING SERIES */
+        .header-channels {
+            display: flex;
+            gap: 2rem;
+            margin-left: auto;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .channel-text {
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0.3rem 0;
+            position: relative;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .channel-text.hollywood {
+            color: #f5c542;
+        }
+        .channel-text.hollywood.active {
+            border-bottom: 3px solid #f5c542;
+        }
+
+        .channel-text.kdrama {
+            color: #ff80bf;
+        }
+        .channel-text.kdrama.active {
+            border-bottom: 3px solid #ff80bf;
+        }
+
+        .channel-text.bollywood {
+            color: #4ecdc4;
+        }
+        .channel-text.bollywood.active {
+            border-bottom: 3px solid #4ecdc4;
+        }
+
+        .channel-text.series {
+            color: #ff6b6b;
+        }
+        .channel-text.series.active {
+            border-bottom: 3px solid #ff6b6b;
+        }
+
+        /* Search Icon */
+        .search-icon {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #ff6b6b;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+        }
+
+        .search-icon:hover {
+            color: #ff0000;
+            transform: scale(1.1);
+        }
+
+        /* Search Modal */
+        .search-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            padding: 2rem;
+        }
+
+        .search-modal.show {
+            display: block;
+        }
+
+        .search-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2rem;
+            color: #ff0000;
+            cursor: pointer;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 800px;
+            margin: 3rem auto;
+            display: block;
+            padding: 1rem;
+            font-size: 1.5rem;
+            background: #1a1a1a;
+            border: 2px solid #ff0000;
+            color: white;
+            border-radius: 50px;
+            outline: none;
+        }
+
+        .search-results {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .result-card {
+            background: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid #ff0000;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 15px rgba(255,0,0,0.5);
+        }
+
+        /* Dropdown */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-btn {
+            background: transparent;
+            color: #ff6b6b;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-btn:hover {
+            color: #ff0000;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: #1a1a1a;
+            min-width: 220px;
+            border: 1px solid #ff0000;
+            border-radius: 8px;
+            z-index: 1000;
+            box-shadow: none;
+        }
+
+        .dropdown-content.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            color: #fff;
+            padding: 10px 16px;
+            text-decoration: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #333;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: #ff0000;
+        }
+
+        /* Cinema Screen Bar */
+        .screen-bar {
+            text-align: center;
+            padding: 0.8rem;
+            background: linear-gradient(90deg, transparent, #ff0000, #4ecdc4, #ff0000, transparent);
+            color: white;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #ff0000;
+            border-top: 2px solid #ff0000;
+            box-shadow: 0 4px 10px rgba(255,0,0,0.3);
+            width: 100%;
+            margin: 0;
+        }
+
+        /* Slider */
+        .slider-container {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            display: none;
+        }
+
+        .slider-container.show {
+            display: block;
+        }
+
+        .slider-wrapper {
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .slider {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .slide {
+            min-width: 100%;
+            height: 540px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .slide-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+            color: white;
+        }
+
+        .slide-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 0.5rem;
+        }
+
+        .slide-subtitle {
+            font-size: 1.3rem;
+            color: #ccc;
+        }
+
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            z-index: 20;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #ff0000;
+        }
+
+        .dot.active {
+            background: #ff0000;
+            transform: scale(1.2);
+            box-shadow: 0 0 10px #ff0000;
+        }
+
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,0,0,0.7);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .slider-btn:hover {
+            background: #ff0000;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .slider-btn.prev {
+            left: 20px;
+        }
+
+        .slider-btn.next {
+            right: 20px;
+        }
+
+        /* Series Page */
+        .series-page {
+            display: none;
+            padding: 2rem;
+            width: 100%;
+        }
+
+        .series-page.show {
+            display: block;
+        }
+
+        .series-header {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+            padding: 2rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .series-header.hide {
+            display: none;
+        }
+
+        .series-poster {
+            width: 300px;
+            height: 450px;
+            background: linear-gradient(45deg, #333, #222);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            color: #ff6b6b;
+            border-radius: 10px;
+            border: 2px solid #ff0000;
+        }
+
+        .series-info {
+            flex: 1;
+        }
+
+        .series-title {
+            font-size: 2.5rem;
+            color: #ff6b6b;
+            margin-bottom: 1rem;
+        }
+
+        .series-description {
+            font-size: 1.1rem;
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .series-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .series-meta-item {
+            background: rgba(255,0,0,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            border: 1px solid #ff0000;
+            font-size: 0.9rem;
+        }
+
+        /* Series Video Player - FULL WIDTH */
+        .series-video-player {
+            width: 100%;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .series-video-player.show {
+            display: block;
+        }
+
+        .series-video-wrapper {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            overflow: hidden;
+        }
+
+        .series-video-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .episodes-title {
+            font-size: 1.8rem;
+            color: #ff6b6b;
+            margin: 2rem 0 1.5rem;
+            padding-left: 1rem;
+            border-left: 5px solid #ff0000;
+        }
+
+        /* EPISODE GRID - SMALLER BOXES */
+        .episodes-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Netflix Style Episode Card - SMALLER */
+        .episode-card {
+            background: #1a1a1a;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #333;
+        }
+
+        .episode-card:hover {
+            transform: translateY(-3px);
+            border-color: #ff6b6b;
+            box-shadow: 0 4px 10px rgba(255,107,107,0.3);
+        }
+
+        .episode-card.active {
+            border: 2px solid #ff6b6b;
+            box-shadow: 0 0 15px rgba(255,107,107,0.5);
+        }
+
+        .episode-thumb {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #2a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #ff6b6b;
+            position: relative;
+        }
+
+        .episode-number {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            background: #ff6b6b;
+            color: white;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .episode-info {
+            padding: 0.5rem;
+        }
+
+        .episode-title {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 0.2rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .episode-duration {
+            font-size: 0.65rem;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .episode-duration::before {
+            content: "⏱️";
+            font-size: 0.65rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #ff0000;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .back-btn:hover {
+            background: transparent;
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        /* Video Player Section - FULL WIDTH */
+        .video-player-section {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .video-player-section.active {
+            display: block;
+        }
+
+        .live-full-header {
+            background: linear-gradient(90deg, #1a1a1a, #000);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            border-bottom: 2px solid #ff0000;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            width: 100%;
+        }
+
+        .live-full-logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .live-full-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 0, 0, 0.2);
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            border: 2px solid #ff0000;
+            cursor: pointer;
+        }
+
+        .live-full-indicator:hover {
+            background: rgba(255, 0, 0, 0.4);
+        }
+
+        .live-full-dot {
+            width: 12px;
+            height: 12px;
+            background: #ff0000;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+            animation: livePulse 1.5s infinite;
+        }
+
+        .live-full-text {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .live-full-viewer {
+            color: #4ecdc4;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+            padding-left: 0.5rem;
+            border-left: 2px solid #ff0000;
+        }
+
+        .live-full-screen {
+            background: linear-gradient(90deg, transparent, #ff0000, #4ecdc4, #ff0000, transparent);
+            color: white;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #ff0000;
+            border-top: 2px solid #ff0000;
+            box-shadow: 0 4px 10px rgba(255,0,0,0.3);
+            text-align: center;
+            padding: 0.8rem;
+            width: 100%;
+        }
+
+        .close-video {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 1001;
+        }
+
+        .close-video:hover {
+            background: #ff3333;
+        }
+
+        /* VIDEO WRAPPER - FULL WIDTH */
+        .live-full-content {
+            width: 100%;
+            padding: 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .video-wrapper {
+            width: 100%;
+            position: relative;
+            aspect-ratio: 16/9;
+            background: #000;
+        }
+
+        .video-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* MOVIE DETAILS */
+        .movie-details {
+            width: 100%;
+            padding: 2rem;
+            background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+        }
+
+        .movie-details-title {
+            font-size: 2rem;
+            color: #ff6b6b;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255,0,0,0.3);
+        }
+
+        .movie-details-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #ccc;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            width: 100%;
+        }
+
+        .movie-details-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #ff0000;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            box-shadow: 0 0 15px rgba(255,0,0,0.5);
+        }
+
+        .movie-details-link:hover {
+            background: transparent;
+            border-color: #ff0000;
+            color: #ff0000;
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(255,0,0,0.8);
+        }
+
+        /* LATEST SECTION - 8 MOVIES WITH SLIDER */
+        .video-latest-section {
+            width: 100%;
+            padding: 2rem;
+            background: #000;
+            border-top: 2px solid #ff0000;
+            border-bottom: 2px solid #ff0000;
+            position: relative;
+        }
+
+        .video-latest-title {
+            font-size: 1.8rem;
+            color: #ff6b6b;
+            margin-bottom: 1.5rem;
+            padding-left: 1rem;
+            border-left: 5px solid #ff0000;
+        }
+
+        .latest-slider-container {
+            position: relative;
+            overflow: hidden;
+            padding: 0 40px;
+        }
+
+        .latest-slider-wrapper {
+            overflow: hidden;
+        }
+
+        .latest-slider {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            gap: 1rem;
+        }
+
+        .latest-slide {
+            min-width: calc((100% - 3rem) / 4);
+            flex-shrink: 0;
+        }
+
+        .video-latest-card {
+            background: #1a1a1a;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #ff0000;
+            width: 100%;
+        }
+
+        .video-latest-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 15px rgba(255,0,0,0.5);
+        }
+
+        .video-latest-poster {
+            width: 100%;
+            aspect-ratio: 2/3;
+            background: linear-gradient(45deg, #333, #222);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #ff6b6b;
+        }
+
+        .video-latest-info {
+            padding: 0.5rem;
+        }
+
+        .video-latest-title-text {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .video-latest-badge {
+            font-size: 0.6rem;
+            color: #ff0000;
+            text-transform: uppercase;
+        }
+
+        .latest-slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,0,0,0.7);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .latest-slider-btn:hover {
+            background: #ff0000;
+        }
+
+        .latest-slider-btn.prev {
+            left: 0;
+        }
+
+        .latest-slider-btn.next {
+            right: 0;
+        }
+
+        /* Main Content - Movie Rows */
+        .movie-section {
+            padding: 2rem;
+        }
+
+        .movie-row {
+            margin-bottom: 2.5rem;
+        }
+
+        .row-title {
+            font-size: 1.6rem;
+            color: #ff6b6b;
+            margin-bottom: 1.2rem;
+            padding-left: 1rem;
+            border-left: 5px solid #ff0000;
+        }
+
+        /* 4 MOVIES PER ROW */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .movie-card {
+            background: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-8px);
+            border-color: #ff0000;
+            box-shadow: 0 0 15px rgba(255,0,0,0.5);
+        }
+
+        .movie-poster {
+            width: 100%;
+            aspect-ratio: 2/3;
+            background: linear-gradient(45deg, #333, #222);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            color: #ff6b6b;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .movie-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .movie-info {
+            padding: 0.6rem;
+        }
+
+        .movie-card-title {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 0.3rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .movie-meta {
+            display: flex;
+            gap: 0.3rem;
+            font-size: 0.65rem;
+            color: #aaa;
+            flex-wrap: wrap;
+        }
+
+        .movie-badge {
+            background: #ff0000;
+            color: white;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.6rem;
+        }
+
+        .series-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.6rem;
+        }
+
+        /* Footer - ALWAYS AT BOTTOM */
+        .footer {
+            background: #000;
+            padding: 2rem;
+            text-align: center;
+            color: #666;
+            border-top: 2px solid #ff0000;
+            width: 100%;
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: #ff6b6b;
+            text-decoration: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: #ff0000;
+            transform: scale(1.1);
+        }
+
+        .footer-copyright {
+            color: #444;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 1400px) {
+            body {
+                min-width: 1400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-wrapper">
+        <div class="theater-header" id="mainHeader">
+            <div class="logo" id="siteName">
+                🎬 CINEVERSE · LIVE
+            </div>
+            
+            <div class="live-indicator" id="liveBtn">
+                <span class="live-dot"></span>
+                <span class="live-text">LIVE</span>
+                <span class="live-viewer-count" id="liveViewerCountHeader">44.78k watching</span>
+            </div>
+            
+            <div class="header-channels">
+                <span class="channel-text hollywood" id="textHollywood">HOLLYWOOD</span>
+                <span class="channel-text kdrama" id="textKdrama">K-DRAMA</span>
+                <span class="channel-text bollywood" id="textBollywood">BOLLYWOOD</span>
+                <span class="channel-text series" id="textSeries">SERIES</span>
+                
+                <div class="dropdown" id="dropdown">
+                    <button class="dropdown-btn" id="dropdownBtn">
+                        MORE ▼
+                    </button>
+                    <div class="dropdown-content" id="dropdownContent">
+                        <div class="dropdown-item" data-channel="tollywood">TOLLYWOOD</div>
+                        <div class="dropdown-item" data-channel="anime">ANIME</div>
+                        <div class="dropdown-item" data-channel="classic">CLASSIC</div>
+                        <div class="dropdown-item" data-channel="horror">HORROR</div>
+                    </div>
+                </div>
+                
+                <span class="search-icon" id="searchIcon">🔍</span>
+            </div>
+        </div>
+
+        <!-- Search Modal -->
+        <div class="search-modal" id="searchModal">
+            <span class="search-close" id="closeSearch">✕</span>
+            <input type="text" class="search-input" id="searchInput" placeholder="Search movies...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+
+        <div class="screen-bar" id="mainScreenBar">
+            🎬 CINEMA SCREEN · GLOBAL CHANNELS 🎬
+        </div>
+
+        <div class="slider-container" id="sliderContainer">
+            <button class="slider-btn prev" id="prevSlide">❮</button>
+            <div class="slider-wrapper">
+                <div class="slider" id="slider">
+                    <div class="slide" data-video-id="1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx" data-title="HOLLYWOOD BLOCKBUSTER WEEK" data-description="Biggest Hollywood hits from 2025-2026. Action, Drama, Comedy and more!" data-link="https://drive.google.com/file/d/1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx/view">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1400' height='540' viewBox='0 0 1400 540'%3E%3Crect width='1400' height='540' fill='%23333'/%3E%3Crect width='1400' height='10' fill='%23f5c542' y='100'/%3E%3Ctext x='100' y='250' font-size='90' fill='%23f5c542'%3E🎬%3C/text%3E%3Ctext x='250' y='280' font-size='70' fill='white'%3EHOLLYWOOD%3C/text%3E%3Ctext x='800' y='280' font-size='50' fill='%23ccc'%3EBLOCKBUSTER WEEK%3C/text%3E%3C/svg%3E" alt="Hollywood Banner">
+                        <div class="slide-content">
+                            <div class="slide-title">🎬 HOLLYWOOD BLOCKBUSTER WEEK</div>
+                            <div class="slide-subtitle">Biggest hits from 2025-2026 · Action · Drama · Comedy</div>
+                        </div>
+                    </div>
+                    <div class="slide" data-video-id="1Qwx9q3P3nZ2fLmWXyKdR7tL8cVfG5hJkL" data-title="K-DRAMA SPECIAL" data-description="Best Korean dramas with English subtitles. Romance, Thriller, Fantasy and more!" data-link="https://drive.google.com/file/d/1Qwx9q3P3nZ2fLmWXyKdR7tL8cVfG5hJkL/view">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1400' height='540' viewBox='0 0 1400 540'%3E%3Crect width='1400' height='540' fill='%23333'/%3E%3Crect width='1400' height='10' fill='%23ff80bf' y='100'/%3E%3Ctext x='100' y='250' font-size='90' fill='%23ff80bf'%3E🇰🇷%3C/text%3E%3Ctext x='250' y='280' font-size='70' fill='white'%3EK-DRAMA%3C/text%3E%3Ctext x='750' y='280' font-size='50' fill='%23ccc'%3ESPECIAL COLLECTION%3C/text%3E%3C/svg%3E" alt="K-Drama Banner">
+                        <div class="slide-content">
+                            <div class="slide-title">🇰🇷 K-DRAMA SPECIAL COLLECTION</div>
+                            <div class="slide-subtitle">Romance · Thriller · Fantasy · With English Subtitles</div>
+                        </div>
+                    </div>
+                    <div class="slide" data-video-id="1A2B3C4D5E6F7G8H9I0J" data-title="BOLLYWOOD MEGA HITS" data-description="Latest Bollywood blockbusters. Masala entertainment at its best!" data-link="https://drive.google.com/file/d/1A2B3C4D5E6F7G8H9I0J/view">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1400' height='540' viewBox='0 0 1400 540'%3E%3Crect width='1400' height='540' fill='%23333'/%3E%3Crect width='1400' height='10' fill='%234ecdc4' y='100'/%3E%3Ctext x='100' y='250' font-size='90' fill='%234ecdc4'%3E🇮🇳%3C/text%3E%3Ctext x='250' y='280' font-size='70' fill='white'%3EBOLLYWOOD%3C/text%3E%3Ctext x='800' y='280' font-size='50' fill='%23ccc'%3EMEGA HITS%3C/text%3E%3C/svg%3E" alt="Bollywood Banner">
+                        <div class="slide-content">
+                            <div class="slide-title">🇮🇳 BOLLYWOOD MEGA HITS</div>
+                            <div class="slide-subtitle">Action · Romance · Comedy · Drama · Masala Entertainment</div>
+                        </div>
+                    </div>
+                    <div class="slide" data-video-id="1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx" data-title="NEW RELEASES 2026" data-description="Fresh from theaters. Don't miss the latest movies!" data-link="https://drive.google.com/file/d/1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx/view">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1400' height='540' viewBox='0 0 1400 540'%3E%3Crect width='1400' height='540' fill='%23333'/%3E%3Crect width='1400' height='10' fill='%23ff0000' y='100'/%3E%3Ctext x='100' y='250' font-size='90' fill='%23ff0000'%3E🔥%3C/text%3E%3Ctext x='250' y='280' font-size='70' fill='white'%3ENEW RELEASES%3C/text%3E%3Ctext x='900' y='280' font-size='50' fill='%23ccc'%3E2026%3C/text%3E%3C/svg%3E" alt="New Releases Banner">
+                        <div class="slide-content">
+                            <div class="slide-title">🔥 NEW RELEASES 2026</div>
+                            <div class="slide-subtitle">Fresh from theaters · Don't miss the latest movies</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="slider-btn next" id="nextSlide">❯</button>
+            <div class="slider-dots" id="sliderDots">
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        </div>
+
+        <!-- Series Page -->
+        <div class="series-page" id="seriesPage">
+            <div class="back-btn" id="backFromSeries">← BACK TO SERIES</div>
+            
+            <div class="series-header" id="seriesHeader">
+                <div class="series-poster" id="seriesPoster">📺</div>
+                <div class="series-info">
+                    <h1 class="series-title" id="seriesTitle">SQUID GAME</h1>
+                    <p class="series-description" id="seriesDescription">Hundreds of cash-strapped players accept a strange invitation to compete in children's games. Inside, a tempting prize awaits — with deadly high stakes.</p>
+                    <div class="series-meta">
+                        <span class="series-meta-item" id="seriesYear">2025</span>
+                        <span class="series-meta-item" id="seriesSeasons">Season 1</span>
+                        <span class="series-meta-item" id="seriesEpisodes">9 Episodes</span>
+                        <span class="series-meta-item" id="seriesGenre">Thriller · Drama</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Series Video Player (shows when episode is clicked) - FULL WIDTH -->
+            <div class="series-video-player" id="seriesVideoPlayer">
+                <div class="series-video-wrapper">
+                    <iframe id="seriesVideoIframe" 
+                            src=""
+                            allow="autoplay; encrypted-media; fullscreen" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+
+            <h2 class="episodes-title">📺 EPISODES</h2>
+            <div class="episodes-grid" id="episodesGrid"></div>
+        </div>
+
+        <!-- Video Player Section - FULL WIDTH -->
+        <div class="video-player-section" id="videoPlayerSection">
+            <div class="live-full-header">
+                <div class="live-full-logo" id="videoSiteName">🎬 CINEVERSE · LIVE</div>
+                <div class="live-full-indicator" id="videoLiveBtn">
+                    <span class="live-full-dot"></span>
+                    <span class="live-full-text">LIVE</span>
+                    <span class="live-full-viewer" id="liveViewerCount">44.78k watching</span>
+                </div>
+            </div>
+            
+            <div class="live-full-screen">
+                🎬 CINEMA SCREEN · LIVE STREAM 🎬
+            </div>
+            
+            <button class="close-video" id="closeVideo">✕ CLOSE</button>
+            
+            <div class="live-full-content">
+                <div class="video-wrapper">
+                    <iframe id="videoPlayer" 
+                            src=""
+                            allow="autoplay; encrypted-media; fullscreen" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                
+                <div class="movie-details" id="movieDetails">
+                    <h2 class="movie-details-title" id="detailsTitle">🔴 LIVE STREAM - CINEVERSE</h2>
+                    <p class="movie-details-description" id="detailsDescription">
+                        Welcome to CINEVERSE Live! Watch the latest movies, exclusive content, and more.
+                    </p>
+                    <a href="#" class="movie-details-link" id="detailsLink" target="_blank">
+                        <span>🔗</span> DOWNLOAD / WATCH LINK
+                    </a>
+                </div>
+
+                <div class="video-latest-section" id="videoLatestSection">
+                    <h2 class="video-latest-title">⏱️ LATEST VIEWED (8 MOVIES)</h2>
+                    <div class="latest-slider-container">
+                        <button class="latest-slider-btn prev" id="latestPrev">❮</button>
+                        <div class="latest-slider-wrapper">
+                            <div class="latest-slider" id="latestSlider"></div>
+                        </div>
+                        <button class="latest-slider-btn next" id="latestNext">❯</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content - Home Page -->
+        <div class="movie-section" id="movieSection">
+            <div class="movie-row" id="hollywoodRow">
+                <h2 class="row-title">🎬 HOLLYWOOD HITS (16 MOVIES)</h2>
+                <div class="movie-grid" id="hollywoodGrid"></div>
+            </div>
+
+            <div class="movie-row" id="kdramaRow" style="display: none;">
+                <h2 class="row-title">🇰🇷 K-DRAMA WORLD (16 DRAMAS)</h2>
+                <div class="movie-grid" id="kdramaGrid"></div>
+            </div>
+
+            <div class="movie-row" id="bollywoodRow" style="display: none;">
+                <h2 class="row-title">🇮🇳 BOLLYWOOD MASALA (16 MOVIES)</h2>
+                <div class="movie-grid" id="bollywoodGrid"></div>
+            </div>
+
+            <!-- SERIES ROW - ONLY VISIBLE ON MAIN PAGE (when no channel is selected) -->
+            <div class="movie-row" id="seriesRow">
+                <h2 class="row-title">📺 POPULAR SERIES (8 SERIES)</h2>
+                <div class="movie-grid" id="seriesGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer" id="mainFooter">
+        <div class="footer-links">
+            <a class="footer-link" id="footerHome">🏠 HOME</a>
+            <a class="footer-link" id="footerMovies">🎬 MOVIES</a>
+            <a class="footer-link" id="footerLive">🔴 LIVE</a>
+            <a class="footer-link" id="footerSeries">📺 SERIES</a>
+            <a class="footer-link" id="footerAbout">📄 ABOUT</a>
+            <a class="footer-link" id="footerContact">📞 CONTACT</a>
+            <a class="footer-link" id="footerTerms">📜 TERMS</a>
+            <a class="footer-link" id="footerPrivacy">🔒 PRIVACY</a>
+        </div>
+        <div class="footer-copyright">
+            © 2026 CINEVERSE · All rights reserved · 44.78k watching now
+        </div>
+    </div>
+
+    <script>
+        const CHANNELS = {
+            hollywood: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx',
+            kdrama: '1Qwx9q3P3nZ2fLmWXyKdR7tL8cVfG5hJkL',
+            bollywood: '1A2B3C4D5E6F7G8H9I0J'
+        };
+
+        // Series Data - 8 SERIES
+        const seriesList = [
+            {
+                id: 'squid-game',
+                title: 'SQUID GAME',
+                description: 'Hundreds of cash-strapped players accept a strange invitation to compete in children\'s games. Inside, a tempting prize awaits — with deadly high stakes.',
+                emoji: '🦑',
+                year: '2025',
+                season: 'Season 1',
+                episodes: 9,
+                genre: 'Thriller · Drama',
+                poster: '🦑',
+                episodesList: [
+                    { number: 1, title: 'Red Light, Green Light', duration: '55 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 2, title: 'Hell', duration: '58 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 3, title: 'The Man with the Umbrella', duration: '52 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 4, title: 'Stick to the Team', duration: '56 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 5, title: 'A Fair World', duration: '54 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 6, title: 'Gganbu', duration: '62 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 7, title: 'VIPS', duration: '59 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 8, title: 'Front Man', duration: '57 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 9, title: 'One Lucky Day', duration: '60 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' }
+                ]
+            },
+            {
+                id: 'stranger-things',
+                title: 'STRANGER THINGS',
+                description: 'When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.',
+                emoji: '👻',
+                year: '2025',
+                season: 'Season 5',
+                episodes: 8,
+                genre: 'Sci-Fi · Horror',
+                poster: '👻',
+                episodesList: [
+                    { number: 1, title: 'Chapter One: The Crawl', duration: '65 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 2, title: 'Chapter Two: The Curse', duration: '62 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 3, title: 'Chapter Three: The Monster', duration: '58 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 4, title: 'Chapter Four: The Secret', duration: '64 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 5, title: 'Chapter Five: The Gate', duration: '61 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 6, title: 'Chapter Six: The Sacrifice', duration: '59 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 7, title: 'Chapter Seven: The Massacre', duration: '70 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 8, title: 'Chapter Eight: The End', duration: '75 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' }
+                ]
+            },
+            {
+                id: 'wednesday',
+                title: 'WEDNESDAY',
+                description: 'Smart, sarcastic and a little dead inside, Wednesday Addams investigates a murder spree while making new friends — and foes — at Nevermore Academy.',
+                emoji: '🖤',
+                year: '2024',
+                season: 'Season 2',
+                episodes: 8,
+                genre: 'Comedy · Fantasy',
+                poster: '🖤',
+                episodesList: [
+                    { number: 1, title: 'Wednesday\'s Child', duration: '50 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' },
+                    { number: 2, title: 'Woe Is the Loneliest Number', duration: '48 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' }
+                ]
+            },
+            {
+                id: 'the-crown',
+                title: 'THE CROWN',
+                description: 'Follows the political rivalries and romance of Queen Elizabeth II\'s reign and the events that shaped the second half of the 20th century.',
+                emoji: '👑',
+                year: '2024',
+                season: 'Season 6',
+                episodes: 10,
+                genre: 'Drama · History',
+                poster: '👑',
+                episodesList: [
+                    { number: 1, title: 'Queen Victoria', duration: '55 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' }
+                ]
+            },
+            {
+                id: 'last-of-us',
+                title: 'THE LAST OF US',
+                description: 'After a global pandemic destroys civilization, a hardened survivor takes charge of a 14-year-old girl who may be humanity\'s last hope.',
+                emoji: '🍄',
+                year: '2025',
+                season: 'Season 2',
+                episodes: 9,
+                genre: 'Drama · Horror',
+                poster: '🍄',
+                episodesList: [
+                    { number: 1, title: 'When You\'re Lost in the Darkness', duration: '80 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' }
+                ]
+            },
+            {
+                id: 'house-dragon',
+                title: 'HOUSE OF THE DRAGON',
+                description: 'The reign of House Targaryen begins: the prequel to "Game of Thrones" set 200 years before the original series.',
+                emoji: '🐉',
+                year: '2024',
+                season: 'Season 2',
+                episodes: 8,
+                genre: 'Fantasy · Drama',
+                poster: '🐉',
+                episodesList: [
+                    { number: 1, title: 'The Heirs of the Dragon', duration: '65 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' }
+                ]
+            },
+            {
+                id: 'mandalorian',
+                title: 'THE MANDALORIAN',
+                description: 'A lone bounty hunter navigates the outer reaches of the galaxy, far from the authority of the New Republic.',
+                emoji: '🪖',
+                year: '2024',
+                season: 'Season 4',
+                episodes: 8,
+                genre: 'Sci-Fi · Adventure',
+                poster: '🪖',
+                episodesList: [
+                    { number: 1, title: 'Chapter 17: The Apostate', duration: '45 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' }
+                ]
+            },
+            {
+                id: 'boyfriend',
+                title: 'MY DEMON BOYFRIEND',
+                description: 'A demon who has lived for 200 years falls in love with a powerful heiress, leading to an unpredictable romance.',
+                emoji: '😈',
+                year: '2024',
+                season: 'Season 1',
+                episodes: 16,
+                genre: 'Romance · Fantasy',
+                poster: '😈',
+                episodesList: [
+                    { number: 1, title: 'The Contract', duration: '70 min', videoId: '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx' }
+                ]
+            }
+        ];
+
+        // 16 Hollywood Movies
+        const hollywoodMovies = [
+            { title: "THE BONE TEMPLE", description: "In a forgotten temple hidden deep within the jungles of Cambodia, a team of archaeologists uncovers an ancient secret.", emoji: "🎥", quality: "1080p" },
+            { title: "CRAP HAPPENS", description: "A hilarious comedy about friends involved in an international conspiracy.", emoji: "🎬", quality: "720p" },
+            { title: "MERCY", description: "In a dystopian future, one woman's quest for mercy becomes a fight for survival.", emoji: "🎭", quality: "4K" },
+            { title: "28 YEARS LATER", description: "The long-awaited sequel to the iconic horror franchise.", emoji: "🧟", quality: "1080p" },
+            { title: "THE ARTOF SARAH", description: "A heartwarming drama about an artist who loses her vision.", emoji: "🎨", quality: "720p" },
+            { title: "DUNE: PART THREE", description: "The epic conclusion to the Dune saga.", emoji: "🏜️", quality: "4K" },
+            { title: "THE BATMAN 2", description: "The Dark Knight returns to face his greatest challenge.", emoji: "🦇", quality: "1080p" },
+            { title: "MISSION IMPOSSIBLE 8", description: "Ethan Hunt's most dangerous mission yet.", emoji: "🎯", quality: "4K" },
+            { title: "JOHN WICK 5", description: "The Baba Yaga returns for one last fight.", emoji: "🔫", quality: "1080p" },
+            { title: "FANTASTIC FOUR", description: "Marvel's first family enters the MCU.", emoji: "🔥", quality: "4K" },
+            { title: "DEADPOOL 4", description: "The Merc with the Mouth is back with more chaos.", emoji: "💀", quality: "1080p" },
+            { title: "AVENGERS: SECRET WARS", description: "The biggest crossover event in MCU history.", emoji: "⚡", quality: "4K" },
+            { title: "SUPERMAN: LEGACY", description: "The Man of Steel returns to the big screen.", emoji: "🦸", quality: "4K" },
+            { title: "GLADIATOR 3", description: "The epic saga continues in ancient Rome.", emoji: "⚔️", quality: "1080p" },
+            { title: "AQUAMAN 3", description: "The King of Atlantis faces a new threat from the depths.", emoji: "🌊", quality: "4K" },
+            { title: "FLASH 2", description: "The fastest man alive races against time.", emoji: "⚡", quality: "1080p" }
+        ];
+
+        // 16 K-Drama Movies
+        const kdramaMovies = [
+            { title: "SARAH (Season 1)", description: "A gripping Korean drama about a woman who can see the future.", emoji: "🇰🇷", quality: "1080p" },
+            { title: "INVINCIBLE SAMURAI", description: "In feudal Japan, a masterless samurai seeks revenge.", emoji: "⚔️", quality: "720p" },
+            { title: "THE BONE TEMPLE", description: "A Korean adaptation set in ancient Korea.", emoji: "🏯", quality: "4K" },
+            { title: "CRAP HAPPENS", description: "A Korean comedy-drama about friends who start a business.", emoji: "😅", quality: "480p" },
+            { title: "QUEEN OF TEARS 2", description: "The love story continues as a couple faces new challenges.", emoji: "👑", quality: "1080p" },
+            { title: "THE GLORY (Season 3)", description: "A woman's elaborate revenge plan reaches its final chapter.", emoji: "😈", quality: "4K" },
+            { title: "EXTRAORDINARY ATTORNEY WOO 2", description: "Brilliant attorney Woo Young-woo takes on new cases.", emoji: "⚖️", quality: "1080p" },
+            { title: "ALCHEMY OF SOULS 3", description: "The fantasy romance continues with more magic.", emoji: "✨", quality: "4K" },
+            { title: "REPLY 1997", description: "A nostalgic trip back to the 90s.", emoji: "📼", quality: "720p" },
+            { title: "VINCENZO 2", description: "The mafia consigliere returns to Korea.", emoji: "⚖️", quality: "4K" },
+            { title: "HOSPITAL PLAYLIST 3", description: "The beloved doctors are back.", emoji: "🏥", quality: "1080p" },
+            { title: "ITAEWON CLASS 2", description: "Park Sae-ro-yi's journey continues.", emoji: "🍜", quality: "4K" },
+            { title: "CRASH LANDING ON YOU 2", description: "The beloved romance continues across borders.", emoji: "💕", quality: "1080p" },
+            { title: "SQUID GAME (Season 3)", description: "The deadly games return with new players.", emoji: "🦑", quality: "4K" },
+            { title: "THE KING 2", description: "The eternal monarch returns to save two worlds.", emoji: "👑", quality: "4K" },
+            { title: "MR QUEEN 2", description: "A modern man trapped in a queen's body faces new chaos.", emoji: "👸", quality: "1080p" }
+        ];
+
+        // 16 Bollywood Movies
+        const bollywoodMovies = [
+            { title: "MERCY", description: "A Bollywood thriller about a police officer who must save her kidnapped daughter.", emoji: "🇮🇳", quality: "1080p" },
+            { title: "THE BONE TEMPLE", description: "An Indian archaeologist discovers a hidden temple in Rajasthan.", emoji: "🕉️", quality: "720p" },
+            { title: "CRAP HAPPENS", description: "A Bollywood comedy about a joint family wedding where everything goes wrong.", emoji: "😂", quality: "480p" },
+            { title: "SARAH", description: "A musical romance about an aspiring singer who finds love.", emoji: "💃", quality: "1080p" },
+            { title: "PATHAN 2", description: "The spy thriller continues with more action.", emoji: "🕵️", quality: "4K" },
+            { title: "JAWAN 2", description: "A man's mission to reform society continues.", emoji: "🔥", quality: "4K" },
+            { title: "TIGER 4", description: "Tiger and Zoya face their biggest threat yet.", emoji: "🐯", quality: "1080p" },
+            { title: "BRAHMASTRA 2", description: "The Astraverse expands with more divine powers.", emoji: "✨", quality: "4K" },
+            { title: "WAR 2", description: "The action saga continues with new agents.", emoji: "💥", quality: "4K" },
+            { title: "DON 4", description: "The king of the underworld returns.", emoji: "🃏", quality: "1080p" },
+            { title: "RRR 2", description: "The epic saga of two freedom fighters continues.", emoji: "🔥", quality: "4K" },
+            { title: "KGF 3", description: "Rocky's empire faces new challenges.", emoji: "⚒️", quality: "4K" },
+            { title: "PUSHPA 3", description: "The wild saga continues with more action.", emoji: "🦚", quality: "1080p" },
+            { title: "ANIMAL PARK", description: "The violent saga continues with more family drama.", emoji: "🐺", quality: "1080p" },
+            { title: "JAILER 2", description: "The angry old man returns to protect his family.", emoji: "👴", quality: "4K" },
+            { title: "LEO 2", description: "A cafe owner's violent past catches up with him.", emoji: "🦁", quality: "4K" }
+        ];
+
+        let currentSlide = 0;
+        let viewers = 44780;
+        const totalSlides = 4;
+        let viewedMovies = JSON.parse(localStorage.getItem('viewedMovies')) || [];
+        let latestCurrentSlide = 0;
+        let currentSeriesId = null;
+        let currentEpisode = null;
+
+        const videoPlayer = document.getElementById('videoPlayer');
+        const seriesVideoIframe = document.getElementById('seriesVideoIframe');
+        const videoSection = document.getElementById('videoPlayerSection');
+        const seriesPage = document.getElementById('seriesPage');
+        const seriesHeader = document.getElementById('seriesHeader');
+        const seriesVideoPlayer = document.getElementById('seriesVideoPlayer');
+        const movieSection = document.getElementById('movieSection');
+        const mainHeader = document.getElementById('mainHeader');
+        const mainScreenBar = document.getElementById('mainScreenBar');
+        const mainFooter = document.getElementById('mainFooter');
+        const liveViewerCountHeader = document.getElementById('liveViewerCountHeader');
+        const liveViewerCount = document.getElementById('liveViewerCount');
+        const liveBtn = document.getElementById('liveBtn');
+        const videoLiveBtn = document.getElementById('videoLiveBtn');
+        const closeVideo = document.getElementById('closeVideo');
+        const siteName = document.getElementById('siteName');
+        const videoSiteName = document.getElementById('videoSiteName');
+        const slider = document.getElementById('slider');
+        const dots = document.querySelectorAll('.dot');
+        const sliderContainer = document.getElementById('sliderContainer');
+        const detailsTitle = document.getElementById('detailsTitle');
+        const detailsDescription = document.getElementById('detailsDescription');
+        const detailsLink = document.getElementById('detailsLink');
+        const hollywoodRow = document.getElementById('hollywoodRow');
+        const kdramaRow = document.getElementById('kdramaRow');
+        const bollywoodRow = document.getElementById('bollywoodRow');
+        const seriesRow = document.getElementById('seriesRow');
+        const textHollywood = document.getElementById('textHollywood');
+        const textKdrama = document.getElementById('textKdrama');
+        const textBollywood = document.getElementById('textBollywood');
+        const textSeries = document.getElementById('textSeries');
+        const latestSlider = document.getElementById('latestSlider');
+        const videoLatestSection = document.getElementById('videoLatestSection');
+        const latestPrev = document.getElementById('latestPrev');
+        const latestNext = document.getElementById('latestNext');
+        const searchIcon = document.getElementById('searchIcon');
+        const searchModal = document.getElementById('searchModal');
+        const closeSearch = document.getElementById('closeSearch');
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const backFromSeries = document.getElementById('backFromSeries');
+        const seriesTitle = document.getElementById('seriesTitle');
+        const seriesDescription = document.getElementById('seriesDescription');
+        const seriesPoster = document.getElementById('seriesPoster');
+        const seriesYear = document.getElementById('seriesYear');
+        const seriesSeasons = document.getElementById('seriesSeasons');
+        const seriesEpisodes = document.getElementById('seriesEpisodes');
+        const seriesGenre = document.getElementById('seriesGenre');
+        const episodesGrid = document.getElementById('episodesGrid');
+
+        // All content for search
+        const allContent = [
+            ...hollywoodMovies.map(m => ({...m, type: 'movie', channel: 'hollywood'})),
+            ...kdramaMovies.map(m => ({...m, type: 'movie', channel: 'kdrama'})),
+            ...bollywoodMovies.map(m => ({...m, type: 'movie', channel: 'bollywood'})),
+            ...seriesList.map(s => ({...s, type: 'series'}))
+        ];
+
+        // Search functionality
+        searchIcon.addEventListener('click', () => {
+            searchModal.classList.add('show');
+            searchInput.focus();
+        });
+
+        closeSearch.addEventListener('click', () => {
+            searchModal.classList.remove('show');
+            searchInput.value = '';
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            if (query.length < 2) {
+                searchResults.innerHTML = '';
+                return;
+            }
+
+            const results = allContent.filter(item => 
+                item.title.toLowerCase().includes(query)
+            ).slice(0, 8);
+
+            searchResults.innerHTML = '';
+            results.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                card.innerHTML = `
+                    <div class="movie-poster" style="font-size: 2rem;">${item.emoji || '📺'}</div>
+                    <div class="movie-info">
+                        <div class="movie-card-title">${item.title}</div>
+                        <div class="movie-meta">
+                            <span>${item.type === 'series' ? '📺 SERIES' : `🔥 ${item.quality}`}</span>
+                            <span class="${item.type === 'series' ? 'series-badge' : 'movie-badge'}">${item.type === 'series' ? 'SERIES' : item.channel?.toUpperCase()}</span>
+                        </div>
+                    </div>
+                `;
+                
+                if (item.type === 'series') {
+                    card.addEventListener('click', () => {
+                        showSeriesPage(item.id);
+                        searchModal.classList.remove('show');
+                        searchInput.value = '';
+                    });
+                } else {
+                    card.addEventListener('click', () => {
+                        playVideo(
+                            CHANNELS[item.channel],
+                            item.title + ' (2026)',
+                            item.description,
+                            `https://drive.google.com/file/d/${CHANNELS[item.channel]}/view`,
+                            {
+                                title: item.title,
+                                emoji: item.emoji,
+                                quality: item.quality,
+                                channel: item.channel
+                            }
+                        );
+                        searchModal.classList.remove('show');
+                        searchInput.value = '';
+                    });
+                }
+                
+                searchResults.appendChild(card);
+            });
+        });
+
+        function showHomePage() {
+            videoSection.classList.remove('active');
+            seriesPage.classList.remove('show');
+            videoPlayer.src = '';
+            seriesVideoIframe.src = '';
+            
+            mainHeader.style.display = 'flex';
+            mainScreenBar.style.display = 'block';
+            mainFooter.style.display = 'block';
+            movieSection.style.display = 'block';
+            
+            document.querySelectorAll('.channel-text').forEach(el => el.classList.remove('active'));
+            
+            // Show all rows on home page
+            hollywoodRow.style.display = 'block';
+            kdramaRow.style.display = 'none';
+            bollywoodRow.style.display = 'none';
+            seriesRow.style.display = 'block'; // Series only on home page
+            
+            sliderContainer.classList.add('show');
+        }
+
+        function showSeriesListing() {
+            videoSection.classList.remove('active');
+            seriesPage.classList.remove('show');
+            videoPlayer.src = '';
+            seriesVideoIframe.src = '';
+            
+            mainHeader.style.display = 'flex';
+            mainScreenBar.style.display = 'block';
+            mainFooter.style.display = 'block';
+            movieSection.style.display = 'block';
+            
+            document.querySelectorAll('.channel-text').forEach(el => el.classList.remove('active'));
+            textSeries.classList.add('active');
+            
+            hollywoodRow.style.display = 'none';
+            kdramaRow.style.display = 'none';
+            bollywoodRow.style.display = 'none';
+            seriesRow.style.display = 'block';
+            
+            sliderContainer.classList.remove('show');
+        }
+
+        function showSeriesPage(seriesId) {
+            const series = seriesList.find(s => s.id === seriesId);
+            if (!series) return;
+
+            currentSeriesId = seriesId;
+            
+            videoSection.classList.remove('active');
+            movieSection.style.display = 'none';
+            mainScreenBar.style.display = 'none';
+            sliderContainer.classList.remove('show');
+            
+            seriesHeader.classList.remove('hide');
+            seriesVideoPlayer.classList.remove('show');
+            seriesVideoIframe.src = '';
+            
+            seriesTitle.textContent = series.title;
+            seriesDescription.textContent = series.description;
+            seriesPoster.textContent = series.poster;
+            seriesYear.textContent = series.year;
+            seriesSeasons.textContent = series.season;
+            seriesEpisodes.textContent = `${series.episodes} Episodes`;
+            seriesGenre.textContent = series.genre;
+
+            episodesGrid.innerHTML = '';
+            series.episodesList.forEach(ep => {
+                const card = document.createElement('div');
+                card.className = 'episode-card';
+                card.dataset.episodeNumber = ep.number;
+                card.innerHTML = `
+                    <div class="episode-thumb">
+                        <span class="episode-number">E${ep.number}</span>
+                        📺
+                    </div>
+                    <div class="episode-info">
+                        <div class="episode-title">${ep.title}</div>
+                        <div class="episode-duration">${ep.duration}</div>
+                    </div>
+                `;
+                card.addEventListener('click', () => playSeriesEpisode(series, ep));
+                episodesGrid.appendChild(card);
+            });
+
+            seriesPage.classList.add('show');
+        }
+
+        function playSeriesEpisode(series, episode) {
+            // Hide series header, show video player
+            seriesHeader.classList.add('hide');
+            seriesVideoPlayer.classList.add('show');
+            
+            // Remove active class from all episodes
+            document.querySelectorAll('.episode-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Add active class to current episode
+            const activeCard = Array.from(document.querySelectorAll('.episode-card')).find(
+                card => card.dataset.episodeNumber == episode.number
+            );
+            if (activeCard) {
+                activeCard.classList.add('active');
+            }
+            
+            // Set video source
+            seriesVideoIframe.src = `https://drive.google.com/file/d/${episode.videoId}/preview?autoplay=1&mute=0&t=${Date.now()}`;
+            
+            // Save to viewed
+            saveToViewed({
+                videoId: episode.videoId,
+                title: `${series.title} - E${episode.number}: ${episode.title}`,
+                description: series.description,
+                link: `https://drive.google.com/file/d/${episode.videoId}/view`,
+                emoji: series.emoji,
+                quality: 'HD',
+                channel: 'series'
+            });
+        }
+
+        function showLiveFullPage() {
+            mainHeader.style.display = 'none';
+            mainScreenBar.style.display = 'none';
+            mainFooter.style.display = 'none';
+            movieSection.style.display = 'none';
+            seriesPage.classList.remove('show');
+            sliderContainer.classList.remove('show');
+            
+            videoSection.classList.add('active');
+            
+            updateVideoLatestSection();
+        }
+
+        function updateVideoLatestSection() {
+            if (viewedMovies.length > 0) {
+                videoLatestSection.style.display = 'block';
+                latestSlider.innerHTML = '';
+                
+                const recentMovies = viewedMovies.slice(-8).reverse();
+                
+                recentMovies.forEach(movie => {
+                    const slide = document.createElement('div');
+                    slide.className = 'latest-slide';
+                    
+                    const card = document.createElement('div');
+                    card.className = 'video-latest-card';
+                    card.dataset.videoId = movie.videoId;
+                    card.dataset.title = movie.title;
+                    card.dataset.description = movie.description;
+                    card.dataset.link = movie.link;
+                    
+                    card.innerHTML = `
+                        <div class="video-latest-poster">
+                            ${movie.emoji}
+                        </div>
+                        <div class="video-latest-info">
+                            <div class="video-latest-title-text">${movie.title.replace(' (2026)', '')}</div>
+                            <div class="video-latest-badge">${movie.channel.toUpperCase()}</div>
+                        </div>
+                    `;
+                    
+                    card.addEventListener('click', () => {
+                        if (movie.channel === 'series') {
+                            // Find and play series episode
+                            const [seriesTitle, episodeInfo] = movie.title.split(' - E');
+                            const series = seriesList.find(s => s.title === seriesTitle);
+                            if (series && episodeInfo) {
+                                const episodeNum = parseInt(episodeInfo.split(':')[0]);
+                                const episode = series.episodesList.find(e => e.number === episodeNum);
+                                if (episode) {
+                                    showSeriesPage(series.id);
+                                    setTimeout(() => playSeriesEpisode(series, episode), 500);
+                                }
+                            }
+                        } else {
+                            playVideo(
+                                movie.videoId,
+                                movie.title,
+                                movie.description,
+                                movie.link,
+                                movie
+                            );
+                        }
+                    });
+                    
+                    slide.appendChild(card);
+                    latestSlider.appendChild(slide);
+                });
+                
+                latestCurrentSlide = 0;
+                updateLatestSlider();
+            } else {
+                videoLatestSection.style.display = 'none';
+            }
+        }
+
+        function updateLatestSlider() {
+            const slideWidth = 100 / 4;
+            latestSlider.style.transform = `translateX(-${latestCurrentSlide * slideWidth}%)`;
+        }
+
+        latestPrev?.addEventListener('click', () => {
+            if (viewedMovies.length > 4) {
+                latestCurrentSlide = Math.max(0, latestCurrentSlide - 1);
+                updateLatestSlider();
+            }
+        });
+
+        latestNext?.addEventListener('click', () => {
+            const maxSlides = Math.ceil(viewedMovies.length / 4) - 1;
+            if (latestCurrentSlide < maxSlides) {
+                latestCurrentSlide++;
+                updateLatestSlider();
+            }
+        });
+
+        function updateSlider(index) {
+            slider.style.transform = `translateX(-${index * 100}%)`;
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            currentSlide = index;
+        }
+
+        document.getElementById('nextSlide')?.addEventListener('click', () => {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateSlider(currentSlide);
+        });
+
+        document.getElementById('prevSlide')?.addEventListener('click', () => {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateSlider(currentSlide);
+        });
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => updateSlider(index));
+        });
+
+        setInterval(() => {
+            if (sliderContainer.classList.contains('show')) {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                updateSlider(currentSlide);
+            }
+        }, 5000);
+
+        document.querySelectorAll('.slide').forEach(slide => {
+            slide.addEventListener('click', () => {
+                playVideo(
+                    slide.dataset.videoId,
+                    slide.dataset.title,
+                    slide.dataset.description,
+                    slide.dataset.link,
+                    {
+                        title: slide.dataset.title,
+                        emoji: '🎬',
+                        quality: '4K',
+                        channel: 'featured'
+                    }
+                );
+            });
+        });
+
+        function createMovieCards(movies, gridId, channel) {
+            const grid = document.getElementById(gridId);
+            movies.forEach(movie => {
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                card.dataset.videoId = CHANNELS[channel];
+                card.dataset.title = movie.title + ' (2026)';
+                card.dataset.description = movie.description;
+                card.dataset.link = `https://drive.google.com/file/d/${CHANNELS[channel]}/view`;
+                card.dataset.emoji = movie.emoji;
+                card.dataset.quality = movie.quality;
+                card.dataset.channel = channel;
+                
+                card.innerHTML = `
+                    <div class="movie-poster">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300' viewBox='0 0 200 300'%3E%3Crect width='200' height='300' fill='%23333'/%3E%3Ctext x='100' y='150' font-size='50' text-anchor='middle' fill='%23${channel === 'hollywood' ? 'f5c542' : channel === 'kdrama' ? 'ff80bf' : '4ecdc4'}' dy='.3em'%3E${movie.emoji}%3C/text%3E%3C/svg%3E" alt="${movie.title}">
+                    </div>
+                    <div class="movie-info">
+                        <div class="movie-card-title">${movie.title}</div>
+                        <div class="movie-meta">
+                            <span>🔥 ${movie.quality}</span>
+                            <span class="movie-badge">${channel.toUpperCase()}</span>
+                        </div>
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => playVideo(
+                    card.dataset.videoId,
+                    card.dataset.title,
+                    card.dataset.description,
+                    card.dataset.link,
+                    {
+                        title: movie.title,
+                        emoji: movie.emoji,
+                        quality: movie.quality,
+                        channel: channel
+                    }
+                ));
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function createSeriesCards() {
+            const grid = document.getElementById('seriesGrid');
+            seriesList.forEach(series => {
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                card.dataset.seriesId = series.id;
+                
+                card.innerHTML = `
+                    <div class="movie-poster" style="font-size: 3rem;">
+                        ${series.poster}
+                    </div>
+                    <div class="movie-info">
+                        <div class="movie-card-title">${series.title}</div>
+                        <div class="movie-meta">
+                            <span>📺 ${series.episodes} Episodes</span>
+                            <span class="series-badge">SERIES</span>
+                        </div>
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => showSeriesPage(series.id));
+                grid.appendChild(card);
+            });
+        }
+
+        function saveToViewed(movieData) {
+            const exists = viewedMovies.some(m => m.title === movieData.title);
+            
+            if (!exists) {
+                viewedMovies.push(movieData);
+                if (viewedMovies.length > 20) {
+                    viewedMovies = viewedMovies.slice(-20);
+                }
+                localStorage.setItem('viewedMovies', JSON.stringify(viewedMovies));
+            }
+        }
+
+        function playVideo(videoId, title, description, link, movieInfo = null) {
+            videoPlayer.src = `https://drive.google.com/file/d/${videoId}/preview?autoplay=1&mute=0&t=${Date.now()}`;
+            detailsTitle.textContent = title;
+            detailsDescription.textContent = description;
+            detailsLink.href = link;
+            
+            if (movieInfo) {
+                saveToViewed({
+                    videoId: videoId,
+                    title: title,
+                    description: description,
+                    link: link,
+                    emoji: movieInfo.emoji || '🎬',
+                    quality: movieInfo.quality || 'HD',
+                    channel: movieInfo.channel || 'series'
+                });
+            }
+            
+            showLiveFullPage();
+        }
+
+        // Home button functionality
+        function goHome() {
+            showHomePage();
+        }
+
+        // Live button functionality
+        function goLive() {
+            playVideo(
+                '1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx', 
+                '🔴 LIVE STREAM - CINEVERSE', 
+                'Welcome to CINEVERSE Live! Watch the latest movies, exclusive content, and more. This is a 24/7 live stream with curated content from Hollywood, K-Drama, and Bollywood. Enjoy the show!',
+                'https://drive.google.com/file/d/1s6L5r-1krzZFBnYyatU8-JS9dyyryLlx/view',
+                {
+                    title: 'LIVE STREAM - CINEVERSE',
+                    emoji: '🔴',
+                    quality: '4K',
+                    channel: 'live'
+                }
+            );
+        }
+
+        // Event listeners
+        siteName.addEventListener('click', goHome);
+        videoSiteName.addEventListener('click', goHome);
+        liveBtn.addEventListener('click', goLive);
+        videoLiveBtn.addEventListener('click', goLive);
+        
+        // Back button from series page - goes back to series listing
+        backFromSeries.addEventListener('click', showSeriesListing);
+
+        // Channel clicks - Series row ONLY on home page
+        textHollywood.addEventListener('click', () => {
+            if (videoSection.classList.contains('active')) {
+                videoSection.classList.remove('active');
+                videoPlayer.src = '';
+            }
+            if (seriesPage.classList.contains('show')) {
+                seriesPage.classList.remove('show');
+                seriesVideoIframe.src = '';
+            }
+            document.querySelectorAll('.channel-text').forEach(el => el.classList.remove('active'));
+            textHollywood.classList.add('active');
+            hollywoodRow.style.display = 'block';
+            kdramaRow.style.display = 'none';
+            bollywoodRow.style.display = 'none';
+            seriesRow.style.display = 'none'; // HIDE series on Hollywood page
+            sliderContainer.classList.remove('show');
+            movieSection.style.display = 'block';
+            mainScreenBar.style.display = 'block';
+        });
+
+        textKdrama.addEventListener('click', () => {
+            if (videoSection.classList.contains('active')) {
+                videoSection.classList.remove('active');
+                videoPlayer.src = '';
+            }
+            if (seriesPage.classList.contains('show')) {
+                seriesPage.classList.remove('show');
+                seriesVideoIframe.src = '';
+            }
+            document.querySelectorAll('.channel-text').forEach(el => el.classList.remove('active'));
+            textKdrama.classList.add('active');
+            hollywoodRow.style.display = 'none';
+            kdramaRow.style.display = 'block';
+            bollywoodRow.style.display = 'none';
+            seriesRow.style.display = 'none'; // HIDE series on K-Drama page
+            sliderContainer.classList.remove('show');
+            movieSection.style.display = 'block';
+            mainScreenBar.style.display = 'block';
+        });
+
+        textBollywood.addEventListener('click', () => {
+            if (videoSection.classList.contains('active')) {
+                videoSection.classList.remove('active');
+                videoPlayer.src = '';
+            }
+            if (seriesPage.classList.contains('show')) {
+                seriesPage.classList.remove('show');
+                seriesVideoIframe.src = '';
+            }
+            document.querySelectorAll('.channel-text').forEach(el => el.classList.remove('active'));
+            textBollywood.classList.add('active');
+            hollywoodRow.style.display = 'none';
+            kdramaRow.style.display = 'none';
+            bollywoodRow.style.display = 'block';
+            seriesRow.style.display = 'none'; // HIDE series on Bollywood page
+            sliderContainer.classList.remove('show');
+            movieSection.style.display = 'block';
+            mainScreenBar.style.display = 'block';
+        });
+
+        textSeries.addEventListener('click', () => {
+            if (videoSection.classList.contains('active')) {
+                videoSection.classList.remove('active');
+                videoPlayer.src = '';
+            }
+            if (seriesPage.classList.contains('show')) {
+                seriesPage.classList.remove('show');
+                seriesVideoIframe.src = '';
+            }
+            document.querySelectorAll('.channel-text').forEach(el => el.classList.remove('active'));
+            textSeries.classList.add('active');
+            hollywoodRow.style.display = 'none';
+            kdramaRow.style.display = 'none';
+            bollywoodRow.style.display = 'none';
+            seriesRow.style.display = 'block'; // SHOW series on Series page
+            sliderContainer.classList.remove('show');
+            movieSection.style.display = 'block';
+            mainScreenBar.style.display = 'block';
+        });
+
+        // Footer links
+        document.querySelectorAll('[id^="footerHome"]').forEach(el => {
+            el.addEventListener('click', goHome);
+        });
+
+        document.querySelectorAll('[id^="footerLive"]').forEach(el => {
+            el.addEventListener('click', goLive);
+        });
+
+        document.querySelectorAll('[id^="footerSeries"]').forEach(el => {
+            el.addEventListener('click', () => {
+                showHomePage();
+                document.querySelectorAll('.channel-text').forEach(el => el.classList.remove('active'));
+                textSeries.classList.add('active');
+                hollywoodRow.style.display = 'none';
+                kdramaRow.style.display = 'none';
+                bollywoodRow.style.display = 'none';
+                seriesRow.style.display = 'block';
+            });
+        });
+
+        document.querySelectorAll('[id^="footerMovies"]').forEach(el => {
+            el.addEventListener('click', () => {
+                showHomePage();
+                document.querySelectorAll('.channel-text').forEach(el => el.classList.remove('active'));
+                hollywoodRow.style.display = 'block';
+                kdramaRow.style.display = 'none';
+                bollywoodRow.style.display = 'none';
+                seriesRow.style.display = 'block';
+            });
+        });
+
+        document.querySelectorAll('[id^="footerAbout"]').forEach(el => {
+            el.addEventListener('click', () => alert('📄 About CINEVERSE: Your ultimate streaming destination for Hollywood, K-Drama, and Bollywood content. 24/7 Live streaming with the latest movies!'));
+        });
+
+        document.querySelectorAll('[id^="footerContact"]').forEach(el => {
+            el.addEventListener('click', () => alert('📞 Contact us: support@cineverse.com'));
+        });
+
+        document.querySelectorAll('[id^="footerTerms"]').forEach(el => {
+            el.addEventListener('click', () => alert('📜 Terms of Service: Standard streaming terms apply. All content is for personal use only.'));
+        });
+
+        document.querySelectorAll('[id^="footerPrivacy"]').forEach(el => {
+            el.addEventListener('click', () => alert('🔒 Privacy Policy: We respect your privacy. No data is collected without consent.'));
+        });
+
+        closeVideo.addEventListener('click', showHomePage);
+
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (videoSection.classList.contains('active')) {
+                    videoSection.classList.remove('active');
+                    videoPlayer.src = '';
+                }
+                sliderContainer.classList.remove('show');
+                alert(`Loading ${this.dataset.channel.toUpperCase()} channel`);
+            });
+        });
+
+        document.getElementById('dropdownBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('dropdownContent').classList.toggle('show');
+        });
+
+        document.addEventListener('click', (e) => {
+            const btn = document.getElementById('dropdownBtn');
+            const content = document.getElementById('dropdownContent');
+            if (!btn.contains(e.target) && !content.contains(e.target)) {
+                content.classList.remove('show');
+            }
+        });
+
+        function updateViewerCount() {
+            const viewerText = '44.78k watching';
+            if (liveViewerCountHeader) liveViewerCountHeader.textContent = viewerText;
+            if (liveViewerCount) liveViewerCount.textContent = viewerText;
+        }
+
+        setInterval(updateViewerCount, 5000);
+
+        // Initialize
+        createMovieCards(hollywoodMovies, 'hollywoodGrid', 'hollywood');
+        createMovieCards(kdramaMovies, 'kdramaGrid', 'kdrama');
+        createMovieCards(bollywoodMovies, 'bollywoodGrid', 'bollywood');
+        createSeriesCards();
+        
+        showHomePage();
+        updateViewerCount();
+    </script>
+</body>
+</html>
